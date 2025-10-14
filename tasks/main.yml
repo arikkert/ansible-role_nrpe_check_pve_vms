@@ -1,0 +1,38 @@
+---
+# tasks file for role_nrpe_check_pve_vms
+
+- name: Ensure check_pve_vms is installed
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /usr/{{ libdir }}/nagios/plugins/
+    mode: '0755'
+  loop:
+    - check_pve_vms
+- name: Show containers that should run on target host
+  ansible.builtin.debug:
+    msg: host {{ inventory_hostname }} has containers {{ containers }}
+  when: containers is defined
+- name: Show pods that should run on target host
+  ansible.builtin.debug:
+    msg: host {{ inventory_hostname }} has pods {{ pods }}
+  when: pods is defined
+- name: Ensure check_pve_vms.cfg is installed
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ include_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - check_pve_vms.cfg
+  notify: Handler nrpe reload
+- name: Ensure sudo rules are in place
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /etc/sudoers.d/{{ item }}
+    mode: '0440'
+    validate: visudo -cf %s
+  loop:
+    - 10_nrpe
+
+...

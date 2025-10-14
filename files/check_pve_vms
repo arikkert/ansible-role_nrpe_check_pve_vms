@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+''' https://nagios-plugins.org/doc/guidelines.html '''
+
+# ARK-ICT
+# Andre Rikkert de Koe - ICT
+
+import subprocess
+import argparse
+import sys
+import os
+
+OK = {
+  "value": 0,
+  "name": "OK",
+  "message": "yay, all VMs are running"
+}
+
+WARNING = {
+  "value": 1,
+  "name": "WARNING",
+  "message": "some VMs ain't running"
+}
+
+CRITICAL = {
+  "value": 2,
+  "name": "CRITICAL",
+  "message": "some VMs ain't running"
+}
+
+UNKNOWN = {
+  "value": 3,
+  "name": "UNKNOWN",
+  "message": "wtf, some unknown errors"
+}
+
+PROGNAME = 'check_pve_vms'
+
+#
+# Functions
+#
+
+def get_items(cmd):
+    '''comment to shutup pylint'''
+    items = []
+    with subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as ppp:
+        for line in ppp.stdout.readlines():
+            line = line.rstrip()
+            line = line.decode('utf-8')
+            items.append(line)
+    return items
+
+def get_vms():
+    '''comment to shutup pylint'''
+    return get_items ("sudo qm list | grep running | awk '{ print $2 }'")
+
+#
+# Main
+#
+
+parser = argparse.ArgumentParser(prog=PROGNAME)
+parser.add_argument('--vms', nargs="*", help="list of VMs to check if running")
+parser.add_argument('--verbose', help="show result of each checked VM", action="store_true")
+args = parser.parse_args()
+
+status = OK
+output = ""
+
+uid = os.getuid()
+if uid != 0:
+    status = UNKNOWN
+    UNKNOWN['message'] = "Script runs under uid : " + str(uid) + ", should be 0"
+
+if args.vms:
+    for arg in args.vms:
+        if arg in get_vms():
+            output = output + "vm " + arg + " : OK\n"
+        else:
+            output = output + "vm " + arg + " : NOK\n"
+            status = CRITICAL
+else:
+    output = output + "No VMs to check defined\n"
+
+print (status["name"] + ' - ' + status["message"])
+if args.verbose:
+    print (output, end="")
+
+sys.exit(status["value"])

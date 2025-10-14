@@ -1,0 +1,6 @@
+---
+- name: Name01
+  hosts: localhost
+  remote_user: root
+  roles:
+    - ansible-role_nrpe_check_pve_vms
