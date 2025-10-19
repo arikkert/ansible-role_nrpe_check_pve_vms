@@ -1,7 +1,7 @@
 ---
 # handlers file for role_nrpe_check_pve_vms
 
-- name: Handler nrpe reload
+- name: Handler nrpe restart
   ansible.builtin.service:
     name: "{{ service }}"
-    state: reloaded
+    state: restarted

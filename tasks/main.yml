@@ -25,7 +25,7 @@
     mode: '0644'
   loop:
     - check_pve_vms.cfg
-  notify: Handler nrpe reload
+  notify: Handler nrpe restart
 - name: Ensure sudo rules are in place
   ansible.builtin.template:
     src: "{{ item }}.j2"
