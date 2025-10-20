@@ -1,14 +1,12 @@
 ---
 # tasks file for role_nrpe_check_pve_vms
 
-- name: Ensure check_pve_vms is installed
+- name: Ensure check_pve_vms plugin is installed
   ansible.builtin.copy:
-    src: "{{ item }}"
+    src: check_pve_vms
     dest: /usr/{{ libdir }}/nagios/plugins/
     mode: '0755'
-  loop:
-    - check_pve_vms
-- name: Show containers that should run on target host
+- name: Show VMs that should run on target host
   ansible.builtin.debug:
     msg: host {{ inventory_hostname }} has VMs {{ vms }}
   when: vms is defined
