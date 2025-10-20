@@ -10,12 +10,8 @@
     - check_pve_vms
 - name: Show containers that should run on target host
   ansible.builtin.debug:
-    msg: host {{ inventory_hostname }} has containers {{ containers }}
-  when: containers is defined
-- name: Show pods that should run on target host
-  ansible.builtin.debug:
-    msg: host {{ inventory_hostname }} has pods {{ pods }}
-  when: pods is defined
+    msg: host {{ inventory_hostname }} has VMs {{ vms }}
+  when: vms is defined
 - name: Ensure check_pve_vms.cfg is installed
   ansible.builtin.template:
     src: "{{ item }}.j2"
